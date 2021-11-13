@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import javax.annotation.Nullable;
 
 public class LRUCacheImpl<K, V> implements LRUCache<K, V> {
     private final HashMap<K, Node<K, V>> core;
@@ -19,6 +20,14 @@ public class LRUCacheImpl<K, V> implements LRUCache<K, V> {
 
     @Override
     public void put(K key, V value) {
+        if (key == null) {
+            throw new IllegalArgumentException("Null keys are not supported");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Null values are not supported");
+        }
+        assert core.size() <= capacity;
+
         remove(key);
         if (capacity == size){
             removeLast();
@@ -32,7 +41,13 @@ public class LRUCacheImpl<K, V> implements LRUCache<K, V> {
     }
 
     @Override
+    @Nullable
     public V get(K key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Null keys are not supported");
+        }
+        assert core.size() <= capacity;
+
         if (core.containsKey(key)){
             return core.get(key).value;
         } else {
@@ -42,6 +57,12 @@ public class LRUCacheImpl<K, V> implements LRUCache<K, V> {
 
     @Override
     public void remove(K key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Null keys are not supported");
+        }
+        assert core.size() <= capacity;
+
+
         if (core.containsKey(key)){
             var toRemove = core.get(key);
             var left = toRemove.left;
@@ -52,6 +73,9 @@ public class LRUCacheImpl<K, V> implements LRUCache<K, V> {
             core.remove(key);
             size--;
         }
+
+        assert !core.containsKey(key);
+        assert size >= 0;
     }
 
     private void removeLast(){
